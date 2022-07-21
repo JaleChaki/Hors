@@ -337,6 +337,12 @@ namespace Hors
                     token.DateTo = datePeriod.Date
                                    + new TimeSpan(0, 23, 59, 59, 999);
                     break;
+                case FixPeriod.PartOfDay:
+                    token.Type = DateTimeTokenType.Period;
+                    token.DateFrom = datePeriod.Date + datePeriod.Time;
+                    token.DateTo = token.DateFrom + datePeriod.Span;
+                    token.HasTime = true;
+                    break;
                 case FixPeriod.TimeUncertain:
                 case FixPeriod.Time:
                     token.Type = DateTimeTokenType.Fixed;

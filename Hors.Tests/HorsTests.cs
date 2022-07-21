@@ -13,6 +13,24 @@ namespace Hors.Tests
         }
 
         [Test]
+        public void MultiplePartOfDays() {
+            var parser = new HorsTextParser();
+            var currentTime = new DateTime(2022, 7, 21);
+            var result = parser.Parse("погода сегодня вечером и ночью ясная", currentTime);
+
+            Assert.AreEqual(2, result.Dates.Count);
+            Assert.True(result.Dates.All(d => d.Type == DateTimeTokenType.Period));
+
+            var evening = result.Dates[0];
+            Assert.AreEqual(currentTime.AddHours(18), evening.DateFrom);
+            Assert.AreEqual(currentTime.AddDays(1).AddTicks(-1), evening.DateTo);
+
+            var night = result.Dates[1];
+            Assert.AreEqual(currentTime.AddDays(1), night.DateFrom);
+            Assert.AreEqual(currentTime.AddDays(1).AddHours(4).AddTicks(-1), night.DateTo);
+        }
+
+        [Test]
         public void TestJanuary()
         {
             var parser = new HorsTextParser();
@@ -165,10 +183,11 @@ namespace Hors.Tests
         [Test]
         public void TestMultipleSimple()
         {
+            var currentTime = new DateTime(2019, 10, 13);
             var parser = new HorsTextParser();
             var result = parser.Parse(
                 "Позавчера в 6:30 состоялось совещание, а завтра днём будет хорошая погода.",
-                new DateTime(2019, 10, 13), 3
+                currentTime, 3
             );
             
             Assert.AreEqual(2, result.Dates.Count);
@@ -183,6 +202,8 @@ namespace Hors.Tests
             Assert.AreEqual(2019, secondDate.DateFrom.Year);
             Assert.AreEqual(14, secondDate.DateFrom.Day);
             Assert.AreEqual(true, secondDate.HasTime);
+            Assert.AreEqual(12, secondDate.DateFrom.Hour);
+            Assert.AreEqual(currentTime.AddDays(1).AddHours(18), secondDate.DateTo.AddTicks(1));
         }
 
         [Test]

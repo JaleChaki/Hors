@@ -8,10 +8,11 @@ namespace Hors.Models
         None          = 0,
         Time          = 1,
         TimeUncertain = 2,
-        Day           = 4,
-        Week          = 8,
-        Month         = 16,
-        Year          = 32
+        PartOfDay     = 4,
+        Day           = 8,
+        Week          = 16,
+        Month         = 32,
+        Year          = 64
     }
 
     public class DateTimeToken

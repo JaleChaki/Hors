@@ -194,6 +194,11 @@ namespace Hors.Models
                 }
             }
             
+            if(!basePeriod.IsFixed(FixPeriod.PartOfDay) && coverPeriod.IsFixed(FixPeriod.PartOfDay)) {
+                basePeriod.Fix(FixPeriod.PartOfDay);
+                basePeriod.Time = coverPeriod.Time;
+                basePeriod.Span = coverPeriod.Span;
+            }
             // time
             var timeGot = false;
             

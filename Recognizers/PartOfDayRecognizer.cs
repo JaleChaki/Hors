@@ -8,7 +8,7 @@ namespace Hors.Recognizers
     {
         protected override string GetRegexPattern()
         {
-            return "(@)?f?([ravgdn])f?(@)?"; // (дата) (в/с) утром/днём/вечером/ночью (в/с) (дата)
+            return "([@N])?f?([ravgdn])f?(@)?"; // (дата) (в/с) утром/днём/вечером/ночью (в/с) (дата)
         }
 
         protected override bool ParseMatch(DatesRawData data, Match match, DateTime userDate)
@@ -19,7 +19,7 @@ namespace Hors.Recognizers
                 switch (match.Groups[2].Value)
                 {
                     case "r": // morning 
-                        hours = 9;
+                        hours = 4;
                         break;
                     case "a": // day
                     case "d":
@@ -27,10 +27,10 @@ namespace Hors.Recognizers
                         hours = 12;
                         break;
                     case "v": // evening
-                        hours = 17;
+                        hours = 18;
                         break;
                     case "g": // night
-                        hours = 23;
+                        hours = 24;
                         break;
                 }
 
@@ -38,10 +38,11 @@ namespace Hors.Recognizers
                 {
                     var date = new AbstractPeriod
                     {
-                        Time = new TimeSpan(hours, 0, 0)
+                        Time = new TimeSpan(hours, 0, 0),
+                        Span = GetPartOfDateTimeSpan(match.Groups[2].Value)
                     };
-                    date.Fix(FixPeriod.TimeUncertain);
                 
+                    date.Fix(FixPeriod.PartOfDay);
                     // remove and insert
                     var startIndex = match.Index;
                     var length = match.Length - 1; // skip date at the beginning or ar the end
@@ -62,6 +63,23 @@ namespace Hors.Recognizers
             }
 
             return false;
+        }
+
+        private TimeSpan GetPartOfDateTimeSpan(string pattern) {
+            var eps = TimeSpan.FromTicks(1);
+            switch(pattern) {
+                case "r":
+                    return TimeSpan.FromHours(8) - eps;
+                case "a": // day
+                case "d":
+                case "n": // noon
+                    return TimeSpan.FromHours(6) - eps;
+                case "v": // evening
+                    return TimeSpan.FromHours(6) - eps;
+                case "g": // night
+                    return TimeSpan.FromHours(4) - eps;
+            }
+            return TimeSpan.Zero;
         }
     }
 }
